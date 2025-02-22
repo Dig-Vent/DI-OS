@@ -1,0 +1,37 @@
+set_appearance_mode("Dark")
+window.attributes('-alpha', 0.5) - transparent window
+window.resizable(False, False)
+window_width = 200
+    window_height = 200
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+    center_x = int(screen_width / 2 - window_width / 2)
+    center_y = int((screen_height / 2 - window_height / 2) - 100)
+    root.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
+
+
+from tkinter import *
+from PIL import Image, ImageFilter, ImageTk
+
+a = Tk()
+a.geometry("200x200")
+a.config(bg="black")
+a.overrideredirect(True)
+a.attributes("-alpha", 0.3)
+im1 = Image.open(r"imgs/no_img.png")
+im1 = ImageTk.PhotoImage(im1)
+b = Label(a, bg="white", image=im1, width=200, height=200)
+b.pack()
+a.mainloop()
+
+
+import psutil
+
+
+print(psutil.sensors_battery())
+
+posso usar o:window.wm_attributes("-transparentcolor", "white")
+e depois ponho o background white e assim não tenho perdas de cor e ainda fica tudo invisivel, mas vou ter de criar
+outra janela tipo uma janela em baixo só com o bg e outra em cima com as cenas só
+
+
