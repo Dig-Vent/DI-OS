@@ -139,14 +139,14 @@ class OperatingSystem:
 
     def name_and_img(self):
         self.activ_U_name = self.U___[self.U_home]
-        if os.path.isfile(f"imgs/Temp/U_{self.U_home+1}/U_img.png"):
-            self.activ_U_img = f"imgs/Temp/U_{self.U_home+1}/U_img.png"
+        if os.path.isfile(f"imgs/U_info/U_{self.U_home+1}/U_img.png"):
+            self.activ_U_img = f"imgs/U_info/U_{self.U_home+1}/U_img.png"
         else:
-            self.activ_U_img = "imgs/Temp/default/U_img.png"
-        if os.path.isfile(f"imgs/Temp/U_{self.U_home+1}/wallpaper.png"):
-            self.activ_U_img = f"imgs/Temp/U_{self.U_home+1}/wallpaper.png"
+            self.activ_U_img = "imgs/U_info/default/U_img.png"
+        if os.path.isfile(f"imgs/U_info/U_{self.U_home+1}/wallpaper.png"):
+            self.activ_U_img = f"imgs/U_info/U_{self.U_home+1}/wallpaper.png"
         else:
-            self.activ_U_img = "imgs/Temp/default/wallpaper.png"
+            self.activ_U_img = "imgs/U_info/default/wallpaper.png"
 
     def verify(self, event):
         if self.P___[self.U_home] != '':
