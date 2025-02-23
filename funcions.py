@@ -254,12 +254,9 @@ class OperatingSystem:
         self.U_home = U_number
         self.name_and_img()
 
-        for widgets in self.btn_list:
-            widgets.place_forget()
-        for widget in self.full_list:
-            widget.place_forget()
-
         if self.P___[self.U_home] == '':
+            for widget in self.full_list:
+                widget.place_forget()
             self.label_U.place(relx=0.5, rely=0.525, anchor=CENTER)
             self.bg_label.unbind("<Button-1>")
             self.bg_label.bind("<Button-1>", self.verify)
@@ -267,6 +264,8 @@ class OperatingSystem:
             self.full_list = []
             self.full_list.append(self.label_U)
         else:
+            for widgets in self.btn_list:
+                widgets.place_forget()
             self.place_bind()
             tk_img = Image.open(self.activ_U_img)
             tk_img = tk_img.resize((200, 200))
