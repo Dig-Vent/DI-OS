@@ -146,7 +146,7 @@ class HomePage(Tk):
         draw = ImageDraw.Draw(bordered_img)
         draw.ellipse((0, 0, new_size + 2 * border_size, new_size + 2 * border_size), fill=border_color)
         bordered_img.paste(output, (border_size, border_size), mask=mask)
-        bordered_img.save(f"imgs/Temp/U_{0+1}/U_img.png")
+        bordered_img.save(f"imgs/U_info/U_{0+1}/U_img.png")
 
     def Start(self):
         self.overrideredirect(True)
