@@ -144,9 +144,9 @@ class OperatingSystem:
         else:
             self.activ_U_img = "imgs/U_info/default/U_img.png"
         if os.path.isfile(f"imgs/U_info/U_{self.U_home+1}/wallpaper.png"):
-            self.activ_U_img = f"imgs/U_info/U_{self.U_home+1}/wallpaper.png"
+            self.activ_U_wp = f"imgs/U_info/U_{self.U_home+1}/wallpaper.png"
         else:
-            self.activ_U_img = "imgs/U_info/default/wallpaper.png"
+            self.activ_U_wp = "imgs/U_info/default/wallpaper.png"
 
     def verify(self, event):
         if self.P___[self.U_home] != '':
@@ -357,6 +357,7 @@ class OperatingSystem:
     def U_interface(self):
         self.display_U_img()
         if self.P___[self.U_home] == '':
+            print("a")
             self.bg_label.unbind("<Button-1>")
             self.bg_label.bind("<Button-1>", self.verify)
             self.U_name.set("Click anywhere")
