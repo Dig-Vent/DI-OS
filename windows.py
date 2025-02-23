@@ -70,7 +70,7 @@ def login(OS):
     OS.bg_label = Label(window, image=image, bg="#0D2131", width=window.winfo_screenwidth(), height=window.winfo_screenheight())
     OS.bg_label.place(rely=0.5, relx=0.5, anchor=CENTER)
     OS.window = window
-    OS.lock_screen()
+    OS.lock_creen()
     window.mainloop()
 
 
@@ -106,7 +106,8 @@ def home(OS):
     mainloop()
 
 
-def on_off_options(root, self):
+def on_off_options(root, self, Q_S_close):
+    self.Q_S_window.unbind("<FocusOut>")
     options_w = Toplevel(root, bg="white")
     options_w.overrideredirect(True)
     width = int(root.winfo_width() * 0.075)
@@ -121,37 +122,49 @@ def on_off_options(root, self):
     background = Label(options_w, bg="white", width=width, height=width, image=options_w.options_image)
     background.pack()
 
-    st_dwn_btn = Label(background, text="Shutdown", width=int(width*0.8), height=int(width/4), bg="#212121", fg="white")
+    st_dwn_btn = Label(background, text="Shutdown", width=int(width*0.8), height=int(width/4), bg="#212121")
     st_dwn_btn.place(anchor="nw", width=int(width*0.8), height=int(width/4), x=int(width*0.1), y=int(width/16))
-    st_dwn_btn.bind("<Button-1>", lambda event: (shutdown(root), options_w.destroy()))
+    st_dwn_btn.bind("<Button-1>", lambda event: (shutdown(root), close()))
 
-    rst_btn = Label(background, text="Restart", width=int(width*0.8), height=int(width/4), bg="#212121", fg="white")
+    rst_btn = Label(background, text="Restart", width=int(width*0.8), height=int(width/4), bg="#212121")
     rst_btn.place(anchor="nw", width=int(width*0.8), height=int(width/4), x=int(width*0.1), y=int(3*width/8))
-    rst_btn.bind("<Button-1>", lambda event: restart(root, self))
+    rst_btn.bind("<ButtonRelease-1>", lambda event: restart(root, self))
 
-    slp_btn = Label(background, text="Sleep", width=int(width * 0.8), height=int(width / 4), bg="#212121", fg="white")
+    slp_btn = Label(background, text="Sleep", width=int(width * 0.8), height=int(width / 4), bg="#212121")
     slp_btn.place(anchor="nw", width=int(width * 0.8), height=int(width / 4), x=int(width * 0.1), y=int(11*width/16))
-    slp_btn.bind("<Button-1>", lambda event: (go_sleep(self), options_w.destroy()))
+    slp_btn.bind("<Button-1>", lambda event: (go_sleep(self), close()))
 
-    def close(event):
+    def close(event=None):
+        self.Q_S_window.bind("<FocusOut>", Q_S_close)
+        Q_S_close()
         self.opt_w_info = False
         options_w.destroy()
 
     options_w.bind("<FocusOut>", close)
+    options_w.focus_set()
     return options_w
 
 
 def shutdown(root):
-    exit_w = Toplevel(root)
+    exit_w = Toplevel(root, bg="white")
     exit_w.overrideredirect(True)
     width = int(root.winfo_width() / 2)
     height = int(root.winfo_height() / 2)
     exit_w.geometry(f"{width}x{height}+{int((root.winfo_screenwidth() - width) / 2)}+{int((root.winfo_screenheight() - height) / 2)}")
     exit_w.lift()
     exit_w.wm_attributes("-topmost", True)
-    exit_id = exit_w.after(2000, root.destroy)
-    cancel_btn = Button(exit_w, command=lambda: (exit_w.after_cancel(exit_id), exit_w.destroy()))
-    cancel_btn.pack()
+    exit_w.wm_attributes("-transparentcolor", "white")
+    exit_id = exit_w.after(10000, root.destroy)
+    bg_image = Image.open("imgs/options.png")
+    bg_image = bg_image.resize((int(width / 2), int(width / 2)))
+    exit_w.bg_image = ImageTk.PhotoImage(bg_image)
+    bg_label = Label(exit_w, image=exit_w.bg_image, bg="white")
+    bg_label.place(x=int((width / 2) - bg_label.winfo_reqwidth() / 2), y=int((height / 2) - bg_label.winfo_reqwidth() / 2))
+    time_say = Label(exit_w, bg="#212121", fg="#999999", text="10 seconds to shutdown", font=20)
+    time_say.place(x=int((width * 0.5) - time_say.winfo_reqwidth() / 2), y=int(height * 0.375))
+    cancel_btn = Label(exit_w, bg="#212121", fg="#999999", text="cancel", font=20)
+    cancel_btn.bind("<Button-1>", lambda event: (exit_w.after_cancel(exit_id), exit_w.destroy()))
+    cancel_btn.place(x=int((width / 2) - cancel_btn.winfo_reqwidth() / 2), y=height / 2)
 
 
 def restart(root, self):
