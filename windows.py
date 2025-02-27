@@ -70,7 +70,7 @@ def login(OS):
     OS.bg_label = Label(window, image=image, bg="#0D2131", width=window.winfo_screenwidth(), height=window.winfo_screenheight())
     OS.bg_label.place(rely=0.5, relx=0.5, anchor=CENTER)
     OS.window = window
-    OS.lock_creen()
+    OS.lock_screen()
     window.mainloop()
 
 
