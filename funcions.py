@@ -139,12 +139,12 @@ class OperatingSystem:
 
     def name_and_img(self):
         self.activ_U_name = self.U___[self.U_home]
-        if os.path.isfile(f"imgs/U_info/U_{self.U_home+1}/U_img.png"):
-            self.activ_U_img = f"imgs/U_info/U_{self.U_home+1}/U_img.png"
+        if os.path.isfile(f"imgs/U_info/U_{self.U_home + 1}/U_img.png"):
+            self.activ_U_img = f"imgs/U_info/U_{self.U_home + 1}/U_img.png"
         else:
             self.activ_U_img = "imgs/U_info/default/U_img.png"
-        if os.path.isfile(f"imgs/U_info/U_{self.U_home+1}/wallpaper.png"):
-            self.activ_U_wp = f"imgs/U_info/U_{self.U_home+1}/wallpaper.png"
+        if os.path.isfile(f"imgs/U_info/U_{self.U_home + 1}/wallpaper.png"):
+            self.activ_U_wp = f"imgs/U_info/U_{self.U_home + 1}/wallpaper.png"
         else:
             self.activ_U_wp = "imgs/U_info/default/wallpaper.png"
 
@@ -184,14 +184,14 @@ class OperatingSystem:
                         digit.close()
                         digits.remove(digit)
 
-                letters = list(current_time)
+                leters = list(current_time)
                 digits = []
                 h = -2
 
-                for letter in letters:
-                    if letter == ":":
-                        letter = "ç"
-                    l_img = Image.open(f"imgs/l_and_n/{letter}.png")
+                for leter in leters:
+                    if leter == ":":
+                        leter = "ç"
+                    l_img = Image.open(f"imgs/l_and_n/{leter}.png")
                     l_img = l_img.resize((int(width), int(height)))
                     l_img = ImageTk.PhotoImage(l_img)
                     l_label = Label(clock_ID, image=l_img, bg="black")
@@ -203,13 +203,12 @@ class OperatingSystem:
         except _tkinter.TclError:
             pass
 
-    def lock_screen(self):
+    def lock_creen(self):
         self.main_clock = Toplevel(self.window)
         self.main_clock.lift()
         self.main_clock.wm_attributes("-topmost", True)
         self.main_clock.wm_attributes("-transparentcolor", "white")
         self.main_clock.overrideredirect(True)
-        self.h_image = self.h_image.resize((int(self.window.winfo_screenwidth() / 14), int(self.window.winfo_screenheight() / 28)))
         self.h_image = ImageTk.PhotoImage(self.h_image)
         self.main_clock.geometry(f"{int(self.window.winfo_screenwidth() / 14)}x{int(self.window.winfo_screenheight() / 28)}+{int((self.window.winfo_screenwidth() - self.h_image.width())/2)}+{int(self.window.winfo_screenheight()/2.4)}")
         self.main_clock.bind("<Button-1>", lambda event: self.move(self.main_clock))
@@ -323,7 +322,7 @@ class OperatingSystem:
         self.btn_img = self.btn_img.resize((int(self.btn_img.width * 1.2), int(self.btn_img.height * 1.2)))
         self.btn_img = ImageTk.PhotoImage(self.btn_img)
         self.pass_image = Image.open("imgs/pass_entry.png")
-        self.pass_image = self.pass_image.resize((int(self.window.winfo_screenwidth() / 11), int((self.pass_image.height / self.pass_image.width) * self.window.winfo_screenwidth() / 11)))
+        self.pass_image = self.pass_image.resize((int(self.window.winfo_screenwidth() / 11), int((self.pass_image.height / self.pass_image.width) * self.window.winfo_screenwidth() / 16)))
         self.pass_image = ImageTk.PhotoImage(self.pass_image)
         self.L_U_S = ImageTk.PhotoImage(self.image_S)
         self.L_U_S_R = ImageTk.PhotoImage(self.image_S_R)
@@ -449,7 +448,7 @@ class OperatingSystem:
             w_p.grid(columnspan=2, row=2, sticky=W, padx=5, pady=5)
             Win.after(2000, w_p.destroy)
         elif len(x) > 11:
-            w_p = Label(Win, text="Tha maximus characters for a name is 11!", font="normal 12", fg="red")
+            w_p = Label(Win, text="Tha maximus caracters for a name is 11!", font="normal 12", fg="red")
             w_p.grid(columnspan=2, row=2, sticky=W, padx=5, pady=5)
             Win.after(2000, w_p.destroy)
         elif all(char == ' ' for char in y) or y == "":
@@ -491,7 +490,7 @@ class OperatingSystem:
         def options(event):
             if self.opt_w_info is False:
                 self.opt_w_info = True
-                self.opt_w = windows.on_off_options(self.window, self)
+                self.opt_w = windows.on_off_options(self.window, self, Q_S_close)
             elif self.opt_w_info is True:
                 self.opt_w_info = False
                 self.opt_w.destroy()
@@ -510,7 +509,7 @@ class OperatingSystem:
             self.Q_S_window.focus_set()
             self.new_position(self.main_clock, int(self.monitor.y - self.main_clock.winfo_height()), 60, 8, self.Q_S_open)
 
-        def Q_S_close(event):
+        def Q_S_close(event=None):
             self.new_position(self.Q_S_window, int(self.monitor.y - self.Q_S_window.winfo_height()), 62, 4, self.Q_S_close)
 
         self.main_clock.bind("<Button-1>", Q_S_open)
