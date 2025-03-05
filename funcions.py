@@ -203,7 +203,7 @@ class OperatingSystem:
         except _tkinter.TclError:
             pass
 
-    def lock_creen(self):
+    def lock_screen(self):
         self.main_clock = Toplevel(self.window)
         self.main_clock.lift()
         self.main_clock.wm_attributes("-topmost", True)
@@ -522,15 +522,139 @@ class OperatingSystem:
         self.new_position(self.main_clock, self.monitor.y, 60, 8, None)
 
 
-
 ###
 
 
-def set_sized_bg_img(master, img_path, width, height):
-    image = PhotoImage(file=img_path)
-    image.configure(height=height, width=width)
-    bg_label = Label(master, image=image)
-    bg_label.pack()
+class CustomTitleBar(Frame):
+    def __init__(self, parent, window_name, icon_img_path):
+        super().__init__(parent, bg="black")
+
+        self.parent = parent
+        self.icon = PhotoImage(file=icon_img_path)
+        self.close_image = PhotoImage(file="imgs/Config/close_button.png")
+        self.close_image2 = PhotoImage(file="imgs/Config/close_button - 2.png")
+        self.maximize_image1 = PhotoImage(file="imgs/Config/maximize_button.png")
+        self.maximize_image2 = PhotoImage(file="imgs/Config/maximize_button2.png")
+        self.left_corner_icon = PhotoImage(file="imgs/Left_round_corner_black.png")
+        self.right_corner_icon = PhotoImage(file="imgs/Right_round_corner_black.png")
+        self.maximize_image3 = PhotoImage(file="imgs/Config/maximize_button - 3.png")
+        self.maximize_image4 = PhotoImage(file="imgs/Config/maximize_button - 4.png")
+        self.minimize_image = PhotoImage(file="imgs/Config/minimize_button.png")
+        self.minimize_image2 = PhotoImage(file="imgs/Config/minimize_button - 2.png")
+        self.size = int(self.parent.winfo_screenheight()/50)
+        self.x = 0
+        self.y = 0
+
+        self.left_corner_label = Label(self, image=self.left_corner_icon, bg="#202020", height=self.left_corner_icon.height(), width=int(self.left_corner_icon.width() * 12) / 16)
+        self.left_corner_label.pack(side="left")
+
+        self.right_corner_label = Label(self, image=self.right_corner_icon, bg="#202020", height=self.right_corner_icon.height(), width=int(self.right_corner_icon.width() * 12) / 16)
+        self.right_corner_label.pack(side="right")
+
+        self.icon_l = Label(self, image=self.icon, height=self.size, width=self.size, bg="black")
+        self.icon_l.pack(side="left")
+
+        self.window_name_label = Label(self, text=window_name, bg="black", fg="white")
+        self.window_name_label.pack(side="left")
+
+        labels = [self, self.left_corner_label, self.right_corner_label, self.icon_l, self.window_name_label]
+
+        for label in labels:
+            label.bind("<B1-Motion>", self.drag_window)
+            label.bind("<Button-1>", self.start_draging_deselect)
+            label.bind('<Button-3>', self.right_touch)
+            label.bind("<Double-Button-1>", lambda event: self.maximize_restore_window(self.maximize_image1, self.maximize_image2))
+
+        self.close_button = Label(self, image=self.close_image, height=self.size, width=self.size, bg="black")
+        self.close_button.pack(side="right")
+        self.close_button.bind("<ButtonRelease-1>", self.close_window)
+        self.close_button.bind("<Enter>", lambda _: self.L_enter1(self.close_image2))
+        self.close_button.bind("<Leave>", lambda _: self.L_leave1(self.close_image))
+
+        self.maximize_button = Label(self, image=self.maximize_image1, height=self.size, width=self.size, bg="black")
+        self.maximize_button.pack(side="right")
+        self.maximize_button.bind("<ButtonRelease-1>", lambda event: self.maximize_restore_window(self.maximize_image1,
+                                                                                           self.maximize_image2))
+        self.maximize_button.bind("<Enter>", lambda _: self.L_enter2(self.maximize_image4, self.maximize_image3))
+        self.maximize_button.bind("<Leave>", lambda _: self.L_leave2(self.maximize_image1, self.maximize_image2))
+
+        self.minimize_button = Label(self, image=self.minimize_image, height=self.size, width=self.size, bg="black")
+        self.minimize_button.pack(side="right")
+        self.minimize_button.bind("<ButtonRelease-1>", self.minimize_window)
+        self.minimize_button.bind("<Enter>", lambda _: self.L_enter3(self.minimize_image2))
+        self.minimize_button.bind("<Leave>", lambda _: self.L_leave3(self.minimize_image))
+
+    def right_touch(self, event):
+        def close_window(event):
+            window.destroy()
+        window = Tk()
+        window.overrideredirect(True)
+        x = window.winfo_pointerx()
+        y = window.winfo_pointery()
+        window.geometry(f"+{x + 10}+{y + 10}")
+        window.bind("<FocusOut>", close_window)
+        window.mainloop()
+
+    def start_draging_deselect(self, event):
+        event.widget.focus_set()
+        self.x = event.x
+        self.y = event.y
+
+    def drag_window(self, event):
+        if self.parent.state() == "zoomed":
+            self.parent.state("normal")
+        deltax = event.x - self.x
+        deltay = event.y - self.y
+        x = self.parent.winfo_x() + deltax
+        y = self.parent.winfo_y() + deltay
+        self.parent.geometry(f"+{x}+{y}")
+
+    def close_window(self, _):
+        self.parent.quit()
+
+    def maximize_restore_window(self, maximize_image1, maximize_image2):
+        if self.parent.state() == "zoomed":
+            self.parent.state("normal")
+            self.maximize_button.configure(image=maximize_image1)
+        else:
+            self.parent.state("zoomed")
+            self.maximize_button.configure(image=maximize_image2)
+
+    def deminimize_window(self, event):
+        self.parent.overrideredirect(True)
+        self.parent.unbind("<FocusIn>")
+
+    def minimize_window(self, _):
+        self.parent.overrideredirect(False)
+        self.parent.state(newstate='iconic')
+        self.parent.after(100, lambda: self.parent.bind("<FocusIn>", self.deminimize_window))
+
+    def L_enter1(self, close_image2):
+        self.close_button.configure(image=close_image2)
+
+    def L_enter2(self, maximize_image4, maximize_image3):
+        if self.parent.state() == "zoomed":
+            self.maximize_button.configure(image=maximize_image4)
+        else:
+            self.maximize_button.configure(image=maximize_image3)
+
+    def L_enter3(self, minimize_image2):
+        self.minimize_button.configure(image=minimize_image2)
+
+    def L_leave1(self, close_image):
+        self.close_button.configure(image=close_image)
+
+    def L_leave2(self, maximize_image1, maximize_image2):
+        if self.parent.state() == "zoomed":
+            self.maximize_button.configure(image=maximize_image2)
+        else:
+            self.maximize_button.configure(image=maximize_image1)
+
+    def L_leave3(self, minimize_image):
+        self.minimize_button.configure(image=minimize_image)
+
+
+###
 
 
 def deselect(event):
