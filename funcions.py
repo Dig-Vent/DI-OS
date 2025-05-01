@@ -526,11 +526,11 @@ class OperatingSystem:
 
 
 class CustomTitleBar(Frame):
-    def __init__(self, parent, window_name, icon_img_path):
+    def __init__(self, parent, window_name=None, icon_img_path=None, ajust_list=None):
         super().__init__(parent, bg="black")
 
         self.parent = parent
-        self.icon = PhotoImage(file=icon_img_path)
+        self.ajust_list = ajust_list
         self.close_image = PhotoImage(file="imgs/Config/close_button.png")
         self.close_image2 = PhotoImage(file="imgs/Config/close_button - 2.png")
         self.maximize_image1 = PhotoImage(file="imgs/Config/maximize_button.png")
@@ -551,38 +551,42 @@ class CustomTitleBar(Frame):
         self.right_corner_label = Label(self, image=self.right_corner_icon, bg="#202020", height=self.right_corner_icon.height(), width=int(self.right_corner_icon.width() * 12) / 16)
         self.right_corner_label.pack(side="right")
 
-        self.icon_l = Label(self, image=self.icon, height=self.size, width=self.size, bg="black")
-        self.icon_l.pack(side="left")
+        labels = [self, self.left_corner_label, self.right_corner_label]
 
-        self.window_name_label = Label(self, text=window_name, bg="black", fg="white")
-        self.window_name_label.pack(side="left")
+        if icon_img_path:
+            self.icon = PhotoImage(file=icon_img_path)
+            self.icon_l = Label(self, image=self.icon, height=self.size, width=self.size, bg="black")
+            self.icon_l.pack(side="left")
+            labels.append(self.icon_l)
 
-        labels = [self, self.left_corner_label, self.right_corner_label, self.icon_l, self.window_name_label]
+        if window_name:
+            self.window_name_label = Label(self, text=window_name, bg="black", fg="white")
+            self.window_name_label.pack(side="left")
+            labels.append(self.window_name_label)
 
         for label in labels:
             label.bind("<B1-Motion>", self.drag_window)
             label.bind("<Button-1>", self.start_draging_deselect)
             label.bind('<Button-3>', self.right_touch)
-            label.bind("<Double-Button-1>", lambda event: self.maximize_restore_window(self.maximize_image1, self.maximize_image2))
+            label.bind("<Double-Button-1>", self.maximize_restore_window)
 
         self.close_button = Label(self, image=self.close_image, height=self.size, width=self.size, bg="black")
         self.close_button.pack(side="right")
         self.close_button.bind("<ButtonRelease-1>", self.close_window)
-        self.close_button.bind("<Enter>", lambda _: self.L_enter1(self.close_image2))
-        self.close_button.bind("<Leave>", lambda _: self.L_leave1(self.close_image))
+        self.close_button.bind("<Enter>", self.L_enter1)
+        self.close_button.bind("<Leave>", self.L_leave1)
 
         self.maximize_button = Label(self, image=self.maximize_image1, height=self.size, width=self.size, bg="black")
         self.maximize_button.pack(side="right")
-        self.maximize_button.bind("<ButtonRelease-1>", lambda event: self.maximize_restore_window(self.maximize_image1,
-                                                                                           self.maximize_image2))
-        self.maximize_button.bind("<Enter>", lambda _: self.L_enter2(self.maximize_image4, self.maximize_image3))
-        self.maximize_button.bind("<Leave>", lambda _: self.L_leave2(self.maximize_image1, self.maximize_image2))
+        self.maximize_button.bind("<ButtonRelease-1>", self.maximize_restore_window)
+        self.maximize_button.bind("<Enter>", self.L_enter2)
+        self.maximize_button.bind("<Leave>", self.L_leave2)
 
         self.minimize_button = Label(self, image=self.minimize_image, height=self.size, width=self.size, bg="black")
         self.minimize_button.pack(side="right")
         self.minimize_button.bind("<ButtonRelease-1>", self.minimize_window)
-        self.minimize_button.bind("<Enter>", lambda _: self.L_enter3(self.minimize_image2))
-        self.minimize_button.bind("<Leave>", lambda _: self.L_leave3(self.minimize_image))
+        self.minimize_button.bind("<Enter>", self.L_enter3)
+        self.minimize_button.bind("<Leave>", self.L_leave3)
 
     def right_touch(self, event):
         def close_window(event):
@@ -592,6 +596,7 @@ class CustomTitleBar(Frame):
         x = window.winfo_pointerx()
         y = window.winfo_pointery()
         window.geometry(f"+{x + 10}+{y + 10}")
+        window.focus_force()
         window.bind("<FocusOut>", close_window)
         window.mainloop()
 
@@ -603,55 +608,66 @@ class CustomTitleBar(Frame):
     def drag_window(self, event):
         if self.parent.state() == "zoomed":
             self.parent.state("normal")
+            self.parent.update_idletasks()
+            self.maximize_button.configure(image=self.maximize_image1)
+            self.place(width=self.parent.winfo_width())
+            if self.ajust_list:
+                for i in self.ajust_list:
+                    i.place(width=self.parent.winfo_width())
         deltax = event.x - self.x
         deltay = event.y - self.y
         x = self.parent.winfo_x() + deltax
         y = self.parent.winfo_y() + deltay
         self.parent.geometry(f"+{x}+{y}")
 
-    def close_window(self, _):
-        self.parent.quit()
+    def close_window(self, event):
+        self.parent.destroy()
 
-    def maximize_restore_window(self, maximize_image1, maximize_image2):
+    def maximize_restore_window(self, event):
         if self.parent.state() == "zoomed":
             self.parent.state("normal")
-            self.maximize_button.configure(image=maximize_image1)
+            self.maximize_button.configure(image=self.maximize_image1)
         else:
             self.parent.state("zoomed")
-            self.maximize_button.configure(image=maximize_image2)
+            self.maximize_button.configure(image=self.maximize_image2)
+        self.parent.update_idletasks()
+        self.place(width=self.parent.winfo_width())
+        if self.ajust_list:
+            for i in self.ajust_list:
+                i.place(width=self.parent.winfo_width())
 
     def deminimize_window(self, event):
         self.parent.overrideredirect(True)
         self.parent.unbind("<FocusIn>")
 
-    def minimize_window(self, _):
+    def minimize_window(self, event):
         self.parent.overrideredirect(False)
         self.parent.state(newstate='iconic')
         self.parent.after(100, lambda: self.parent.bind("<FocusIn>", self.deminimize_window))
 
-    def L_enter1(self, close_image2):
-        self.close_button.configure(image=close_image2)
+    def L_enter1(self, event):
+        self.close_button.configure(image=self.close_image2)
 
-    def L_enter2(self, maximize_image4, maximize_image3):
+    def L_enter2(self, event):
         if self.parent.state() == "zoomed":
-            self.maximize_button.configure(image=maximize_image4)
+            self.maximize_button.configure(image=self.maximize_image4)
         else:
-            self.maximize_button.configure(image=maximize_image3)
+            self.maximize_button.configure(image=self.maximize_image3)
 
-    def L_enter3(self, minimize_image2):
-        self.minimize_button.configure(image=minimize_image2)
+    def L_enter3(self, event):
+        self.minimize_button.configure(image=self.minimize_image2)
 
-    def L_leave1(self, close_image):
-        self.close_button.configure(image=close_image)
+    def L_leave1(self, event):
+        self.close_button.configure(image=self.close_image)
 
-    def L_leave2(self, maximize_image1, maximize_image2):
+    def L_leave2(self, event):
         if self.parent.state() == "zoomed":
-            self.maximize_button.configure(image=maximize_image2)
+            self.maximize_button.configure(image=self.maximize_image2)
         else:
-            self.maximize_button.configure(image=maximize_image1)
+            self.maximize_button.configure(image=self.maximize_image1)
 
-    def L_leave3(self, minimize_image):
-        self.minimize_button.configure(image=minimize_image)
+    def L_leave3(self, event):
+        self.minimize_button.configure(image=self.minimize_image)
 
 
 ###
